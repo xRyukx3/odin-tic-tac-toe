@@ -27,10 +27,22 @@ function Gameboard() {
 function Cell() {
   let value = 0;
 
-  const changeValue = (player) => (value = player);
+  const setValue = (player) => (value = player);
   const getValue = () => value;
 
-  return { changeValue, getValue };
+  return { setValue, getValue };
+}
+
+function Player(_name) {
+  const _name = "player";
+  const score = 0;
+
+  const setName = (name) => (_name = name);
+  const getName = () => _name;
+  const getScore = () => score;
+  const incrementScore = () => score++;
+
+  return { setName, getName, getScore, incrementScore };
 }
 
 const board = Gameboard();
