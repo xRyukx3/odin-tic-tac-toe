@@ -35,14 +35,17 @@ function Cell() {
 
 function Player(_name) {
   const _name = "player";
+  const _symbol = "X";
   const score = 0;
 
   const setName = (name) => (_name = name);
   const getName = () => _name;
+  const getSymbol = () => _symbol;
+  const setSymbol = (symbol) => (_symbol = symbol);
   const getScore = () => score;
   const incrementScore = () => score++;
 
-  return { setName, getName, getScore, incrementScore };
+  return { setName, getName, getSymbol, setSymbol, getScore, incrementScore };
 }
 
 const board = Gameboard();
