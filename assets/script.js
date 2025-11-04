@@ -53,10 +53,15 @@ function GameControl() {
   const switchTurn = () => {
     currentPlayerIndex = currentPlayerIndex === 0 ? 1 : 0;
   };
-  const markBoard = (row, col, symbol) => {
-    gameboard
-      .getBoard()
-      [row][col].setValue(players[currentPlayerIndex].getSymbol());
+  const markBoard = (row, col) => {
+    const boardCell = gameboard.getBoard()[row][col];
+    const symbol = players[currentPlayerIndex].getSymbol();
+    if (boardCell.getValue() === null) {
+      boardCell.setValue(symbol);
+      return true;
+    } else {
+      return false;
+    }
   };
 
   //Helper functions to check
@@ -117,8 +122,6 @@ function GameControl() {
     const board = gameboard.getBoard();
     const currentPlayer = players[currentPlayerIndex];
     const symbol = currentPlayer.getSymbol();
-    let status;
-    let winner;
     let ticTacToePositions = [];
 
     if (checkRowsAndColumns(board, symbol)) {
@@ -130,9 +133,8 @@ function GameControl() {
         positions: ticTacToePositions,
       };
     } else if (checkDiagonals(board, symbol)) {
-      ticTacToePositions = checkRowsAndColumns(board, symbol);
+      ticTacToePositions = checkDiagonals(board, symbol);
       winner = currentPlayer.getName();
-      status = "win";
       return {
         status: "win",
         winner: currentPlayer.getName(),
@@ -148,5 +150,21 @@ function GameControl() {
   return { players, gameboard, switchTurn, markBoard, checkTicTacToe };
 }
 
-game = GameControl();
-game.gameboard.printBoard();
+const play = () => {
+  const play = GameControl();
+  let status = "continue";
+  while (status === "continue") {
+    let row = prompt("Ingrese fila: ");
+    let col = prompt("Ingrese columna: ");
+    if (play.markBoard(row, col)) {
+      status = play.checkTicTacToe().status;
+      console.log(status);
+      play.switchTurn();
+      play.gameboard.printBoard();
+    } else {
+      console.log("This cell have already marked, please mark another");
+    }
+  }
+};
+
+const playGame = play();
