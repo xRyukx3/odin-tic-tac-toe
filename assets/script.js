@@ -1,7 +1,40 @@
-function createGameboard() {
-  const rows = 3;
-  const columns = 3;
+/* UI Section */
 
+const displayController = (function () {
+  const gameContainer = document.querySelector(".game-container");
+
+  function createGrid(rows, columns) {
+    const board = document.createElement("table");
+    board.className = "grid";
+    for (let i = 0; i < rows; i++) {
+      const tr = document.createElement("tr");
+      for (let j = 0; j < columns; j++) {
+        const td = document.createElement("td");
+        td.className = "cell";
+        td.dataset.row = i;
+        td.dataset.column = j;
+        tr.appendChild(td);
+      }
+      board.appendChild(tr);
+    }
+    gameContainer.appendChild(board);
+  }
+
+  function updateDisplay(board) {
+    const cells = document.querySelectorAll(".cell");
+    cells.forEach((cellElement) => {
+      const row = parseInt(cellElement.dataset.row);
+      const column = parseInt(cellElement.dataset.column);
+      cellElement.textContent = board[row][column].getValue();
+    });
+  }
+
+  return { createGrid, updateDisplay };
+})();
+
+/* Game Logic Section */
+
+function createGameboard(rows, columns) {
   //Using IIFE to initialize the board variable
   //this keeps the Gameboard scope clean
   const board = (function () {
@@ -46,9 +79,11 @@ function createPlayer(name, symbol) {
   return { getName, getSymbol, getScore, incrementScore };
 }
 
-function GameControl() {
+function GameControl(boardSize = 3) {
   const players = [createPlayer("David", "X"), createPlayer("Josue", "O")];
-  const gameboard = createGameboard();
+  const gameboard = createGameboard(boardSize, boardSize);
+  displayController.createGrid(boardSize, boardSize);
+  displayController.updateDisplay(gameboard.getBoard());
   let currentPlayerIndex = 0;
   const switchTurn = () => {
     currentPlayerIndex = currentPlayerIndex === 0 ? 1 : 0;
@@ -166,5 +201,7 @@ const play = () => {
     }
   }
 };
+
+/* */
 
 const playGame = play();
