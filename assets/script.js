@@ -79,15 +79,20 @@ function createPlayer(name, symbol) {
   return { getName, getSymbol, getScore, incrementScore };
 }
 
-function GameControl(boardSize = 3) {
-  const players = [createPlayer("David", "X"), createPlayer("Josue", "O")];
+function GameControl(
+  boardSize = 3,
+  players = [createPlayer("Player 1", "X"), createPlayer("Player 2", "O")]
+) {
+  console.log(players);
   const gameboard = createGameboard(boardSize, boardSize);
   displayController.createGrid(boardSize, boardSize);
   displayController.updateDisplay(gameboard.getBoard());
+
   let currentPlayerIndex = 0;
   const switchTurn = () => {
     currentPlayerIndex = currentPlayerIndex === 0 ? 1 : 0;
   };
+
   const markBoard = (row, col) => {
     const boardCell = gameboard.getBoard()[row][col];
     const symbol = players[currentPlayerIndex].getSymbol();
@@ -185,23 +190,43 @@ function GameControl(boardSize = 3) {
   return { players, gameboard, switchTurn, markBoard, checkTicTacToe };
 }
 
-const play = () => {
-  const play = GameControl();
-  let status = "continue";
-  while (status === "continue") {
-    let row = prompt("Ingrese fila: ");
-    let col = prompt("Ingrese columna: ");
-    if (play.markBoard(row, col)) {
-      status = play.checkTicTacToe().status;
-      console.log(status);
-      play.switchTurn();
-      play.gameboard.printBoard();
-    } else {
-      console.log("This cell have already marked, please mark another");
-    }
-  }
+const initGame = () => {
+  const playersInformationForm = document.querySelector(".player-information");
+  let players = [];
+  playersInformationForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const player1Name = document.getElementById("player-1-name");
+    const player2Name = document.getElementById("player-2-name");
+    const player1Mark = document.getElementById("player-1-mark");
+    const player2Mark = document.getElementById("player-2-mark");
+    players = [
+      createPlayer(player1Name.value, player1Mark.value),
+      createPlayer(player2Name.value, player2Mark.value),
+    ];
+    const play = GameControl(3, players);
+    let status = "continue";
+    const board = document.querySelector(".grid");
+
+    board.addEventListener("click", (e) => {
+      const row = parseInt(e.target.dataset.row);
+      const column = parseInt(e.target.dataset.column);
+      if (status === "continue") {
+        if (e.target.classList.contains("cell")) {
+          if (play.markBoard(row, column)) {
+            displayController.updateDisplay(play.gameboard.getBoard());
+            status = play.checkTicTacToe().status;
+            console.log(status);
+            play.switchTurn();
+            play.gameboard.printBoard();
+          }
+        } else {
+          return;
+        }
+      }
+    });
+  });
 };
 
 /* */
 
-const playGame = play();
+initGame();
