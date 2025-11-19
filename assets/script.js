@@ -1,8 +1,7 @@
 /* UI Section */
+const gameContainer = document.querySelector(".game-container");
 
 const displayController = (function () {
-  const gameContainer = document.querySelector(".game-container");
-
   function createGrid(rows, columns) {
     const board = document.createElement("table");
     board.className = "grid";
@@ -20,6 +19,74 @@ const displayController = (function () {
     gameContainer.appendChild(board);
   }
 
+  function createButtonControls() {
+    const newGameButton = document.createElement("button");
+    newGameButton.className = "control new-game-button";
+    newGameButton.textContent = "NEW GAME";
+    const restartGameButton = document.createElement("button");
+    restartGameButton.className = "control restart-game-button";
+    restartGameButton.textContent = "RESTART";
+    gameContainer.appendChild(newGameButton);
+    gameContainer.appendChild(restartGameButton);
+  }
+
+  function removeButtonControls() {
+    const buttons = document.querySelectorAll(".control");
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].remove();
+    }
+  }
+
+  function createPlayersBoard(players) {
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < players.length; i++) {
+      const playerInformation = document.createElement("div");
+      playerInformation.className = "player";
+      playerInformation.dataset.index = i;
+      const playerName = document.createElement("p");
+      playerName.className = "name";
+      playerName.textContent = `Name: ${players[i].getName()}`;
+
+      const playerMark = document.createElement("p");
+      playerMark.className = "mark";
+      playerMark.textContent = `Mark: ${players[i].getSymbol()}`;
+
+      const playerScore = document.createElement("p");
+      playerScore.className = "score";
+      playerScore.textContent = `Score: ${players[i].getScore()}`;
+
+      playerInformation.appendChild(playerName);
+      playerInformation.appendChild(playerMark);
+      playerInformation.appendChild(playerScore);
+      fragment.appendChild(playerInformation);
+    }
+    gameContainer.appendChild(fragment);
+  }
+
+  function removePlayersBoard() {
+    const players = document.querySelectorAll(".player");
+    for (let i = 0; i < players.length; i++) {
+      players[i].remove();
+    }
+  }
+
+  function updatePlayersBoard(players) {
+    for (let i = 0; i < players.length; i++) {
+      const playerName = document.querySelector(
+        `.player[data-index="${i}"] .name`
+      );
+      const playerMark = document.querySelector(
+        `.player[data-index="${i}"] .mark`
+      );
+      const playerScore = document.querySelector(
+        `.player[data-index="${i}"] .score`
+      );
+      playerName.textContent = `Name: ${players[i].getName()}`;
+      playerMark.textContent = `Mark: ${players[i].getSymbol()}`;
+      playerScore.textContent = `Score: ${players[i].getScore()}`;
+    }
+  }
+
   function updateDisplay(board) {
     const cells = document.querySelectorAll(".cell");
     cells.forEach((cellElement) => {
@@ -29,7 +96,23 @@ const displayController = (function () {
     });
   }
 
-  return { createGrid, updateDisplay };
+  function createResultDisplay(result) {
+    const resultDisplay = document.createElement("p");
+    resultDisplay.className = "result";
+    resultDisplay.innerHTML = result;
+    gameContainer.appendChild(resultDisplay);
+  }
+
+  return {
+    createGrid,
+    updateDisplay,
+    createPlayersBoard,
+    updatePlayersBoard,
+    removePlayersBoard,
+    createButtonControls,
+    removeButtonControls,
+    createResultDisplay,
+  };
 })();
 
 /* Game Logic Section */
@@ -53,8 +136,14 @@ function createGameboard(rows, columns) {
     const boardValues = board.map((row) => row.map((cell) => cell.getValue()));
     console.log(boardValues);
   };
+  const cleanBoard = () => {
+    const boardValues = board.map((row) =>
+      row.map((cell) => cell.setDefault())
+    );
+    console.log(boardValues);
+  };
 
-  return { getBoard, printBoard };
+  return { getBoard, printBoard, cleanBoard };
 }
 
 function Cell() {
@@ -62,8 +151,9 @@ function Cell() {
 
   const setValue = (player) => (value = player);
   const getValue = () => value;
+  const setDefault = () => (value = null);
 
-  return { setValue, getValue };
+  return { setValue, getValue, setDefault };
 }
 
 function createPlayer(name, symbol) {
@@ -164,17 +254,10 @@ function GameControl(
     const symbol = currentPlayer.getSymbol();
     let ticTacToePositions = [];
 
-    if (checkRowsAndColumns(board, symbol)) {
-      ticTacToePositions = checkRowsAndColumns(board, symbol);
-      winner = currentPlayer.getName();
-      return {
-        status: "win",
-        winner: currentPlayer.getName(),
-        positions: ticTacToePositions,
-      };
-    } else if (checkDiagonals(board, symbol)) {
-      ticTacToePositions = checkDiagonals(board, symbol);
-      winner = currentPlayer.getName();
+    const winningPositions =
+      checkRowsAndColumns(board, symbol) || checkDiagonals(board, symbol);
+
+    if (winningPositions) {
       return {
         status: "win",
         winner: currentPlayer.getName(),
@@ -187,13 +270,33 @@ function GameControl(
     }
   };
 
-  return { players, gameboard, switchTurn, markBoard, checkTicTacToe };
+  return {
+    players,
+    gameboard,
+    currentPlayerIndex,
+    switchTurn,
+    markBoard,
+    checkTicTacToe,
+  };
 }
 
 const initGame = () => {
-  const playersInformationForm = document.querySelector(".player-information");
+  const playersInformationDialog = document.querySelector(
+    ".player-information-dialog"
+  );
+  const playersInformationForm = document.querySelector(
+    ".player-information-form"
+  );
   let players = [];
+  const showDialogButton = document.querySelector(".start-button");
+
+  showDialogButton.addEventListener("click", () => {
+    playersInformationDialog.showModal();
+  });
+
   playersInformationForm.addEventListener("submit", (e) => {
+    showDialogButton.style.display = "none";
+    playersInformationDialog.close();
     e.preventDefault();
     const player1Name = document.getElementById("player-1-name");
     const player2Name = document.getElementById("player-2-name");
@@ -203,9 +306,16 @@ const initGame = () => {
       createPlayer(player1Name.value, player1Mark.value),
       createPlayer(player2Name.value, player2Mark.value),
     ];
+    if (document.querySelector(".grid")) {
+      const previousGamboard = document.querySelector(".grid");
+      previousGamboard.remove();
+    }
     const play = GameControl(3, players);
     let status = "continue";
     const board = document.querySelector(".grid");
+
+    displayController.createButtonControls();
+    displayController.createPlayersBoard(play.players);
 
     board.addEventListener("click", (e) => {
       const row = parseInt(e.target.dataset.row);
@@ -216,17 +326,57 @@ const initGame = () => {
             displayController.updateDisplay(play.gameboard.getBoard());
             status = play.checkTicTacToe().status;
             console.log(status);
-            play.switchTurn();
+            if (status === "continue") {
+              play.switchTurn();
+            } else if (status === "win") {
+              const winner = play.checkTicTacToe().winner;
+              const indexWinner = play.players.findIndex(
+                (player) => player.getName() === winner
+              );
+              if (indexWinner !== false) {
+                displayController.createResultDisplay(
+                  `${play.players[indexWinner].getName()} wins`
+                );
+                console.log(indexWinner);
+                play.players[indexWinner].incrementScore();
+                displayController.updatePlayersBoard(play.players);
+              }
+              board.style.pointerEvents = "none";
+              play.currentPlayerIndex = 0;
+            } else if (status === "tie") {
+              displayController.createResultDisplay("It's a tie!");
+              play.currentPlayerIndex = 0;
+            }
             play.gameboard.printBoard();
           }
-        } else {
-          return;
         }
       }
     });
+
+    const newGameButton = document.querySelector(".new-game-button");
+    newGameButton.addEventListener("click", () => {
+      if (document.querySelector(".result")) {
+        const result = document.querySelector(".result");
+        result.remove();
+      }
+      play.gameboard.cleanBoard();
+      displayController.updateDisplay(play.gameboard.getBoard());
+      status = "continue";
+      board.style.pointerEvents = "auto";
+    });
+
+    const restartGameButton = document.querySelector(".restart-game-button");
+    restartGameButton.addEventListener("click", () => {
+      if (document.querySelector(".result")) {
+        const result = document.querySelector(".result");
+        result.remove();
+      }
+      playersInformationForm.reset();
+      displayController.removeButtonControls();
+      displayController.removePlayersBoard();
+      playersInformationDialog.showModal();
+    });
   });
 };
-
-/* */
 
 initGame();
