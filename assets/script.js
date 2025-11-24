@@ -19,15 +19,25 @@ const displayController = (function () {
     gameContainer.appendChild(board);
   }
 
+  function removeGrid() {
+    const board = document.querySelector(".grid");
+    if (board) {
+      board.remove();
+    }
+  }
+
   function createButtonControls() {
+    const controls = document.createElement("div");
+    controls.className = "controls";
     const newGameButton = document.createElement("button");
     newGameButton.className = "control new-game-button";
-    newGameButton.textContent = "NEW GAME";
+    newGameButton.textContent = "PLAY AGAIN";
     const restartGameButton = document.createElement("button");
     restartGameButton.className = "control restart-game-button";
     restartGameButton.textContent = "RESTART";
-    gameContainer.appendChild(newGameButton);
-    gameContainer.appendChild(restartGameButton);
+    controls.appendChild(newGameButton);
+    controls.appendChild(restartGameButton);
+    gameContainer.appendChild(controls);
   }
 
   function removeButtonControls() {
@@ -105,6 +115,7 @@ const displayController = (function () {
 
   return {
     createGrid,
+    removeGrid,
     updateDisplay,
     createPlayersBoard,
     updatePlayersBoard,
@@ -372,6 +383,7 @@ const initGame = () => {
         result.remove();
       }
       playersInformationForm.reset();
+      displayController.removeGrid();
       displayController.removeButtonControls();
       displayController.removePlayersBoard();
       playersInformationDialog.showModal();

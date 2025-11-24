@@ -4,31 +4,41 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="assets/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
     <title>Tic-Tac-Toe Game</title>
   </head>
   <body>
-    <h1 class="main-title">Tic Tac Toe</h1>
-    <button class="start-button">START</button>
-    <dialog class="player-information-dialog">
-      <form action="#" method="dialog" class="player-information-form">
-        <fieldset>
-          <legend>Player 1</legend>
-          <label for="player-1-name">Name:</label>
-          <input type="text" name="player-1-name" id="player-1-name" />
-          <label for="player-1-mark">Mark:</label>
-          <input type="text" name="player-1-mark" id="player-1-mark" />
-        </fieldset>
-        <fieldset>
-          <legend>Player 2</legend>
-          <label for="player-2-name">Name:</label>
-          <input type="text" name="player-2-name" id="player-2-name" />
-          <label for="player-2-mark">Mark:</label>
-          <input type="text" name="player-2-mark" id="player-2-mark" />
-        </fieldset>
-        <button type="submit" class="save-information-button">SAVE</button>
-      </form>
-    </dialog>
-    <div class="game-container"></div>
+    <header>
+      <h1 class="title">Tic Tac Toe</h1>
+    </header>
+    <div class="main">
+      <button class="start-button">PLAY</button>
+      <dialog class="player-information-dialog">
+        <form action="#" method="dialog" class="player-information-form">
+          <fieldset>
+            <legend>Player 1</legend>
+            <label for="player-1-name">Name:</label>
+            <input type="text" name="player-1-name" id="player-1-name" />
+            <label for="player-1-mark">Mark:</label>
+            <input type="text" name="player-1-mark" id="player-1-mark" />
+          </fieldset>
+          <fieldset>
+            <legend>Player 2</legend>
+            <label for="player-2-name">Name:</label>
+            <input type="text" name="player-2-name" id="player-2-name" />
+            <label for="player-2-mark">Mark:</label>
+            <input type="text" name="player-2-mark" id="player-2-mark" />
+          </fieldset>
+          <button type="submit" class="save-information-button">SAVE</button>
+        </form>
+      </dialog>
+      <div class="game-container"></div>
+    </div>
     <script src="assets/script.js"></script>
   </body>
 </html>
