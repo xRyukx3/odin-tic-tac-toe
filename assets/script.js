@@ -41,9 +41,9 @@ const displayController = (function () {
   }
 
   function removeButtonControls() {
-    const buttons = document.querySelectorAll(".control");
-    for (let i = 0; i < buttons.length; i++) {
-      buttons[i].remove();
+    const controls = document.querySelector(".controls");
+    if (controls) {
+      controls.remove();
     }
   }
 
